@@ -1,11 +1,12 @@
 const grpc = require('grpc')
 const notesProto = grpc.load('notes.proto')
 const uuidv1 = require('uuid/v1')
+require('dotenv').config();
 
 const server = new grpc.Server()
 const notes = [
-    { id: '1', title: 'Note 1', content: 'Content 1'},
-    { id: '2', title: 'Note 2', content: 'Content 2'}
+    { id: '1', title: 'Note 1', content: 'Content 1' },
+    { id: '2', title: 'Note 2', content: 'Content 2' }
 ]
 
 server.addService(notesProto.NoteService.service, {
@@ -34,7 +35,7 @@ server.addService(notesProto.NoteService.service, {
         if (existingNote) {
             existingNote.title = call.request.title
             existingNote.content = call.request.content
-            callback(null, existingNote)         
+            callback(null, existingNote)
         } else {
             callback({
                 code: grpc.status.NOT_FOUND,
@@ -56,7 +57,8 @@ server.addService(notesProto.NoteService.service, {
     }
 })
 
-server.bind('127.0.0.1:50051',
-  grpc.ServerCredentials.createInsecure())
-console.log('Server running at http://127.0.0.1:50051')
+const { MODE, PORT } = process.env
+server.bind(MODE + PORT, grpc.ServerCredentials.createInsecure())
+console.log('Server running at ', MODE, PORT)
+console.log(process.env.MODE)
 server.start()
